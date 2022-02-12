@@ -82,6 +82,7 @@ MonoBehaviour:
   rightPaddleAnimator: {fileID: 2254784317465536115}
   leftPaddleAnimator: {fileID: 1405019919}
   speed: 5
+  angularSpeedOnPaddle: 10
 --- !u!1 &5761862340715340293
 GameObject:
   m_ObjectHideFlags: 0

@@ -7,6 +7,7 @@ namespace KayakGame
         [SerializeField] private Animator rightPaddleAnimator;
         [SerializeField] private Animator leftPaddleAnimator;
         [SerializeField] private float speed;
+        [SerializeField] private float angularSpeedOnPaddle;
 
         private Vector2 direction;
         private float angularSpeed;
@@ -18,7 +19,14 @@ namespace KayakGame
 
         private void Update()
         {
-            transform.Translate(direction * speed * Time.deltaTime);
+            transform.position += new Vector3(direction.x, direction.y) * speed * Time.deltaTime;
+        }
+
+        private void AddAngularSpeed(float value)
+        {
+            angularSpeed += value;
+            direction = Quaternion.Euler(0f, 0f, angularSpeed) * Vector2.up;
+            transform.up = direction;
         }
 
         public void OnLeftPaddleMoveStart()
@@ -34,11 +42,18 @@ namespace KayakGame
         public void OnLeftPaddleMovePerformed()
         {
             leftPaddleAnimator.Play("PaddleMovePerform");
+            AddAngularSpeed(-angularSpeedOnPaddle);
         }
 
         public void OnRightPaddleMovePerformed()
         {
             rightPaddleAnimator.Play("PaddleMovePerform");
+            AddAngularSpeed(angularSpeedOnPaddle);
+        }
+
+        private void OnDrawGizmos()
+        {
+            Gizmos.DrawRay(transform.position, direction * 10f);
         }
     }
 }
