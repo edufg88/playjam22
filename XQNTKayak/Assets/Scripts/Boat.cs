@@ -212,6 +212,7 @@ namespace KayakGame
         private void OnCollisionWithObstacle(Collider2D collision)
         {
             dead = true;
+            ui.gameObject.SetActive(false);
             spriteRenderer.enabled = false;
             leftPaddleAnimator.enabled = false;
             rightPaddleAnimator.enabled = false;

@@ -12,9 +12,11 @@ namespace KayakGame
         [SerializeField] private UnityEvent onLeftPaddleMovePerformed;
         [SerializeField] private UnityEvent onRightPaddleMoveStart;
         [SerializeField] private UnityEvent onRightPaddleMovePerformed;
+        [SerializeField] private UnityEvent onRestart;
 
         [SerializeField] private KeyCode rightRow;
         [SerializeField] private KeyCode leftRow;
+        [SerializeField] private KeyCode restart;
 
         private void Update()
         {
@@ -33,6 +35,10 @@ namespace KayakGame
             if (Input.GetKeyUp(leftRow))
             {
                 onLeftPaddleMovePerformed?.Invoke();
+            }
+            if (Input.GetKeyUp(restart))
+            {
+                onRestart?.Invoke();
             }
         }
     }
