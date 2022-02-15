@@ -1,14 +1,17 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace KayakGame
 {
     public class Boat : MonoBehaviour
     {
         [SerializeField] private BoatUI ui;
+        [SerializeField] private SpriteRenderer spriteRenderer;
         [SerializeField] private Animator rightPaddleAnimator;
         [SerializeField] private Animator leftPaddleAnimator;
         [SerializeField] private ParticleSystem trailParticles;
+        [SerializeField] private ParticleSystem destructionParticles;
         [SerializeField] private float speed;
         [SerializeField] private float turboSpeed;
         [SerializeField] private float angularSpeedOnPaddle;
@@ -16,6 +19,7 @@ namespace KayakGame
         [SerializeField] private float turboDuration;
         [SerializeField] private float turboCooldownDuration;
         [SerializeField] private Color turboTrailColor;
+        [SerializeField] private UnityEvent onCollisionWithObstacle;
 
         private float currentSpeed;
         private float leftPaddleStartTime = float.MinValue;
@@ -27,6 +31,12 @@ namespace KayakGame
         private Vector2 direction;
         private float angularSpeed;
         private Color trailInitialColor;
+        private float[] paddleTorqueValues = { -500f, -400f, -300f, 300f, 400f, 500f };
+        private float[] paddleForceValues = { -400f, -300f, -200, 200, 300f, 400f };
+        private bool dead = false;
+
+        private float GetRandomPaddleTorque() => paddleTorqueValues[Random.Range(0, paddleTorqueValues.Length)];
+        private float GetRandomPaddleForce() => paddleForceValues[Random.Range(0, paddleForceValues.Length)];
 
         private Vector2 forwardVector
         {
@@ -43,6 +53,10 @@ namespace KayakGame
 
         private void Update()
         {
+            if (dead)
+            {
+                return;
+            }
             UpdateTurbo();
             transform.position += new Vector3(direction.x, direction.y) * currentSpeed * Time.deltaTime;
         }
@@ -141,18 +155,30 @@ namespace KayakGame
 
         public void OnLeftPaddleMoveStart()
         {
+            if (dead)
+            {
+                return;
+            }
             leftPaddleAnimator.Play("PaddleMoveStart");
             leftPaddleStartTime = Time.timeSinceLevelLoad;
         }
 
         public void OnRightPaddleMoveStart()
         {
+            if (dead)
+            {
+                return;
+            }
             rightPaddleAnimator.Play("PaddleMoveStart");
             rightPaddleStartTime = Time.timeSinceLevelLoad;
         }
 
         public void OnLeftPaddleMovePerformed()
         {
+            if (dead)
+            {
+                return;
+            }
             leftPaddleAnimator.Play("PaddleMovePerform");
             AddAngularSpeed(-angularSpeedOnPaddle);
             PerformTurboIfReady();
@@ -160,9 +186,40 @@ namespace KayakGame
 
         public void OnRightPaddleMovePerformed()
         {
+            if (dead)
+            {
+                return;
+            }
             rightPaddleAnimator.Play("PaddleMovePerform");
             AddAngularSpeed(angularSpeedOnPaddle);
             PerformTurboIfReady();
+        }
+
+        private void OnTriggerEnter2D(Collider2D collision)
+        {
+            if (collision.CompareTag("Obstacle"))
+            {
+                OnCollisionWithObstacle(collision);
+            }
+        }
+
+        private void OnCollisionWithObstacle(Collider2D collision)
+        {
+            dead = true;
+            spriteRenderer.enabled = false;
+            leftPaddleAnimator.enabled = false;
+            rightPaddleAnimator.enabled = false;
+            var leftPaddleRB = leftPaddleAnimator.GetComponent<Rigidbody2D>();
+            var rightPaddleRB = rightPaddleAnimator.GetComponent<Rigidbody2D>();
+            leftPaddleRB.WakeUp();
+            leftPaddleRB.AddRelativeForce(Vector2.left * GetRandomPaddleForce());
+            leftPaddleRB.AddTorque(GetRandomPaddleTorque());
+            rightPaddleRB.WakeUp();
+            rightPaddleRB.AddRelativeForce(Vector2.right * GetRandomPaddleForce());
+            rightPaddleRB.AddTorque(GetRandomPaddleTorque());
+            trailParticles.Stop();
+            destructionParticles.Play();
+            onCollisionWithObstacle?.Invoke();
         }
 
         private void OnDrawGizmos()
