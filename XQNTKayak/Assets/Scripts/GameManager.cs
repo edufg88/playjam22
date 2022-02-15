@@ -6,9 +6,33 @@ namespace KayakGame
 {
     public class GameManager : MonoBehaviour
     {
+        [SerializeField] IngameUI gameUI;
+
+        private float secondsSinceStart;
+        private float distanceTraveled;
+        private int coinsCollected;
+        private int score;
+
+        private void Update()
+        {
+            UpdateScoreValues();
+            gameUI.UpdateValues(secondsSinceStart, distanceTraveled, coinsCollected, score);
+        }
+        
+        private void UpdateScoreValues()
+        {
+            secondsSinceStart = Time.timeSinceLevelLoad;
+            score = (int)secondsSinceStart + (int)distanceTraveled + coinsCollected * 100;
+        }
+
         public void OnGameOver()
         {
             StartCoroutine(GameOverCoroutine());
+        }
+
+        public void OnCoinCollected()
+        {
+            coinsCollected++;
         }
 
         private IEnumerator GameOverCoroutine()

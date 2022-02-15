@@ -12,6 +12,7 @@ namespace KayakGame
         [SerializeField] private Animator leftPaddleAnimator;
         [SerializeField] private ParticleSystem trailParticles;
         [SerializeField] private ParticleSystem destructionParticles;
+        [SerializeField] private ParticleSystem coinCollectParticlesPrefab;
         [SerializeField] private float speed;
         [SerializeField] private float turboSpeed;
         [SerializeField] private float angularSpeedOnPaddle;
@@ -20,6 +21,7 @@ namespace KayakGame
         [SerializeField] private float turboCooldownDuration;
         [SerializeField] private Color turboTrailColor;
         [SerializeField] private UnityEvent onCollisionWithObstacle;
+        [SerializeField] private UnityEvent onCollisionWithCoin;
 
         private float currentSpeed;
         private float leftPaddleStartTime = float.MinValue;
@@ -201,6 +203,10 @@ namespace KayakGame
             {
                 OnCollisionWithObstacle(collision);
             }
+            else if (collision.CompareTag("Coin"))
+            {
+                OnCollisionWithCoin(collision); 
+            }
         }
 
         private void OnCollisionWithObstacle(Collider2D collision)
@@ -220,6 +226,14 @@ namespace KayakGame
             trailParticles.Stop();
             destructionParticles.Play();
             onCollisionWithObstacle?.Invoke();
+        }
+
+        private void OnCollisionWithCoin(Collider2D collision)
+        {
+            var particles = Instantiate(coinCollectParticlesPrefab, collision.transform.position, Quaternion.identity);
+            Destroy(particles.gameObject, 5f);
+            collision.gameObject.SetActive(false);
+            onCollisionWithCoin?.Invoke();
         }
 
         private void OnDrawGizmos()
