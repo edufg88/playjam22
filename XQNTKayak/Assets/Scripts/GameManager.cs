@@ -13,6 +13,11 @@ namespace KayakGame
         private int coinsCollected;
         private int score;
 
+        private void Start()
+        {
+            SoundManager.Instance.PlayMusic();
+        }
+
         private void Update()
         {
             UpdateScoreValues();

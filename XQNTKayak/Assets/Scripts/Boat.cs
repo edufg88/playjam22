@@ -181,6 +181,7 @@ namespace KayakGame
             {
                 return;
             }
+            SoundManager.Instance.PlayBoatRow();
             leftPaddleAnimator.Play("PaddleMovePerform");
             AddAngularSpeed(-angularSpeedOnPaddle);
             PerformTurboIfReady();
@@ -192,6 +193,7 @@ namespace KayakGame
             {
                 return;
             }
+            SoundManager.Instance.PlayBoatRow();
             rightPaddleAnimator.Play("PaddleMovePerform");
             AddAngularSpeed(angularSpeedOnPaddle);
             PerformTurboIfReady();
@@ -211,6 +213,7 @@ namespace KayakGame
 
         private void OnCollisionWithObstacle(Collider2D collision)
         {
+            SoundManager.Instance.PlayBoatCrash();
             dead = true;
             ui.gameObject.SetActive(false);
             spriteRenderer.enabled = false;
@@ -226,11 +229,12 @@ namespace KayakGame
             rightPaddleRB.AddTorque(GetRandomPaddleTorque());
             trailParticles.Stop();
             destructionParticles.Play();
-            onCollisionWithObstacle?.Invoke();
+            onCollisionWithObstacle?.Invoke();            
         }
 
         private void OnCollisionWithCoin(Collider2D collision)
         {
+            SoundManager.Instance.PlayCollectCoin();
             var particles = Instantiate(coinCollectParticlesPrefab, collision.transform.position, Quaternion.identity);
             Destroy(particles.gameObject, 5f);
             collision.gameObject.SetActive(false);
