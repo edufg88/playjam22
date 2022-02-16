@@ -7,7 +7,7 @@ namespace KayakGame
     public class GameManager : MonoBehaviour
     {
         [SerializeField] IngameUI gameUI;
-
+        
         private float secondsSinceStart;
         private float distanceTraveled;
         private int coinsCollected;

@@ -8,6 +8,7 @@ namespace KayakGame
     {
         [SerializeField] private BoatUI ui;
         [SerializeField] private SpriteRenderer spriteRenderer;
+        [SerializeField] private SpriteRenderer wrongDirSpriteRenderer;
         [SerializeField] private Animator rightPaddleAnimator;
         [SerializeField] private Animator leftPaddleAnimator;
         [SerializeField] private ParticleSystem trailParticles;
@@ -19,6 +20,7 @@ namespace KayakGame
         [SerializeField] private float timeToTurbo;
         [SerializeField] private float turboDuration;
         [SerializeField] private float turboCooldownDuration;
+        [SerializeField] private float timeToReposition;
         [SerializeField] private Color turboTrailColor;
         [SerializeField] private UnityEvent onCollisionWithObstacle;
         [SerializeField] private UnityEvent onCollisionWithCoin;
@@ -28,6 +30,7 @@ namespace KayakGame
         private float rightPaddleStartTime = float.MaxValue;
         private float turboProgressAcc = 0f;
         private float turboCooldownProgressAcc = 0f;
+        private float negativeYAcc = 0f;
         private bool cooldown = false;
         private Coroutine turboCoroutine = null;
         private Vector2 direction;
@@ -60,7 +63,32 @@ namespace KayakGame
                 return;
             }
             UpdateTurbo();
+            CheckYDirection();
             transform.position += new Vector3(direction.x, direction.y) * currentSpeed * Time.deltaTime;
+        }
+
+        private void CheckYDirection()
+        {
+            if (direction.y >= 0f)
+            {
+                negativeYAcc = 0f;
+                return;
+            }
+            negativeYAcc += Time.deltaTime;
+            if (negativeYAcc > timeToReposition)
+            {
+                StartCoroutine(RepositionBoatCoroutine());
+            }
+        }
+
+        private IEnumerator RepositionBoatCoroutine()
+        {
+            dead = true;
+            wrongDirSpriteRenderer.gameObject.SetActive(true);
+            yield return LerpDirectionCoroutine(Vector2.up, 3f);
+            angularSpeed = 0f;
+            wrongDirSpriteRenderer.gameObject.SetActive(false);
+            dead = false;
         }
 
         private IEnumerator LerpForward(Vector2 target, float duration)
