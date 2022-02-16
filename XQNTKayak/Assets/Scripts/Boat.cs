@@ -8,24 +8,32 @@ namespace KayakGame
     {
         [SerializeField] private BoatUI ui;
         [SerializeField] private SpriteRenderer spriteRenderer;
+        [SerializeField] private SpriteRenderer wrongDirSpriteRenderer;
         [SerializeField] private Animator rightPaddleAnimator;
         [SerializeField] private Animator leftPaddleAnimator;
+        [SerializeField] private GameObject playerRendererParent;
         [SerializeField] private ParticleSystem trailParticles;
         [SerializeField] private ParticleSystem destructionParticles;
+        [SerializeField] private ParticleSystem coinCollectParticlesPrefab;
+        [SerializeField] private ParticleSystem leftPaddleParticles;
+        [SerializeField] private ParticleSystem rightPaddleParticles;
         [SerializeField] private float speed;
         [SerializeField] private float turboSpeed;
         [SerializeField] private float angularSpeedOnPaddle;
         [SerializeField] private float timeToTurbo;
         [SerializeField] private float turboDuration;
         [SerializeField] private float turboCooldownDuration;
+        [SerializeField] private float timeToReposition;
         [SerializeField] private Color turboTrailColor;
         [SerializeField] private UnityEvent onCollisionWithObstacle;
+        [SerializeField] private UnityEvent onCollisionWithCoin;
 
         private float currentSpeed;
         private float leftPaddleStartTime = float.MinValue;
         private float rightPaddleStartTime = float.MaxValue;
         private float turboProgressAcc = 0f;
         private float turboCooldownProgressAcc = 0f;
+        private float negativeYAcc = 0f;
         private bool cooldown = false;
         private Coroutine turboCoroutine = null;
         private Vector2 direction;
@@ -58,7 +66,32 @@ namespace KayakGame
                 return;
             }
             UpdateTurbo();
-            transform.position += new Vector3(direction.x, direction.y) * currentSpeed * Time.deltaTime;
+            CheckYDirection();
+            transform.position += currentSpeed * Time.deltaTime * new Vector3(direction.x, direction.y);
+        }
+
+        private void CheckYDirection()
+        {
+            if (direction.y >= 0f)
+            {
+                negativeYAcc = 0f;
+                return;
+            }
+            negativeYAcc += Time.deltaTime;
+            if (negativeYAcc > timeToReposition)
+            {
+                StartCoroutine(RepositionBoatCoroutine());
+            }
+        }
+
+        private IEnumerator RepositionBoatCoroutine()
+        {
+            dead = true;
+            wrongDirSpriteRenderer.gameObject.SetActive(true);
+            yield return LerpDirectionCoroutine(Vector2.up, 3f);
+            angularSpeed = 0f;
+            wrongDirSpriteRenderer.gameObject.SetActive(false);
+            dead = false;
         }
 
         private IEnumerator LerpForward(Vector2 target, float duration)
@@ -168,7 +201,7 @@ namespace KayakGame
             if (dead)
             {
                 return;
-            }
+            }            
             rightPaddleAnimator.Play("PaddleMoveStart");
             rightPaddleStartTime = Time.timeSinceLevelLoad;
         }
@@ -179,7 +212,9 @@ namespace KayakGame
             {
                 return;
             }
+            SoundManager.Instance.PlayBoatRow();
             leftPaddleAnimator.Play("PaddleMovePerform");
+            leftPaddleParticles.Play();
             AddAngularSpeed(-angularSpeedOnPaddle);
             PerformTurboIfReady();
         }
@@ -190,7 +225,9 @@ namespace KayakGame
             {
                 return;
             }
+            SoundManager.Instance.PlayBoatRow();
             rightPaddleAnimator.Play("PaddleMovePerform");
+            rightPaddleParticles.Play();
             AddAngularSpeed(angularSpeedOnPaddle);
             PerformTurboIfReady();
         }
@@ -201,12 +238,23 @@ namespace KayakGame
             {
                 OnCollisionWithObstacle(collision);
             }
+            else if (collision.CompareTag("Coin"))
+            {
+                OnCollisionWithCoin(collision); 
+            }
         }
 
         private void OnCollisionWithObstacle(Collider2D collision)
         {
+            if (dead)
+            {
+                return;
+            }
+            SoundManager.Instance.PlayBoatCrash();
             dead = true;
+            ui.gameObject.SetActive(false);
             spriteRenderer.enabled = false;
+            playerRendererParent.SetActive(false);
             leftPaddleAnimator.enabled = false;
             rightPaddleAnimator.enabled = false;
             var leftPaddleRB = leftPaddleAnimator.GetComponent<Rigidbody2D>();
@@ -219,7 +267,16 @@ namespace KayakGame
             rightPaddleRB.AddTorque(GetRandomPaddleTorque());
             trailParticles.Stop();
             destructionParticles.Play();
-            onCollisionWithObstacle?.Invoke();
+            onCollisionWithObstacle?.Invoke();            
+        }
+
+        private void OnCollisionWithCoin(Collider2D collision)
+        {
+            SoundManager.Instance.PlayCollectCoin();
+            var particles = Instantiate(coinCollectParticlesPrefab, collision.transform.position, Quaternion.identity);
+            Destroy(particles.gameObject, 5f);
+            collision.gameObject.SetActive(false);
+            onCollisionWithCoin?.Invoke();
         }
 
         private void OnDrawGizmos()
