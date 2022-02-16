@@ -14,6 +14,8 @@ namespace KayakGame
         [SerializeField] private ParticleSystem trailParticles;
         [SerializeField] private ParticleSystem destructionParticles;
         [SerializeField] private ParticleSystem coinCollectParticlesPrefab;
+        [SerializeField] private ParticleSystem leftPaddleParticles;
+        [SerializeField] private ParticleSystem rightPaddleParticles;
         [SerializeField] private float speed;
         [SerializeField] private float turboSpeed;
         [SerializeField] private float angularSpeedOnPaddle;
@@ -64,7 +66,7 @@ namespace KayakGame
             }
             UpdateTurbo();
             CheckYDirection();
-            transform.position += new Vector3(direction.x, direction.y) * currentSpeed * Time.deltaTime;
+            transform.position += currentSpeed * Time.deltaTime * new Vector3(direction.x, direction.y);
         }
 
         private void CheckYDirection()
@@ -198,7 +200,7 @@ namespace KayakGame
             if (dead)
             {
                 return;
-            }
+            }            
             rightPaddleAnimator.Play("PaddleMoveStart");
             rightPaddleStartTime = Time.timeSinceLevelLoad;
         }
@@ -211,6 +213,7 @@ namespace KayakGame
             }
             SoundManager.Instance.PlayBoatRow();
             leftPaddleAnimator.Play("PaddleMovePerform");
+            leftPaddleParticles.Play();
             AddAngularSpeed(-angularSpeedOnPaddle);
             PerformTurboIfReady();
         }
@@ -223,6 +226,7 @@ namespace KayakGame
             }
             SoundManager.Instance.PlayBoatRow();
             rightPaddleAnimator.Play("PaddleMovePerform");
+            rightPaddleParticles.Play();
             AddAngularSpeed(angularSpeedOnPaddle);
             PerformTurboIfReady();
         }
