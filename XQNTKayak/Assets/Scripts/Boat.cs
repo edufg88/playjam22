@@ -246,6 +246,10 @@ namespace KayakGame
 
         private void OnCollisionWithObstacle(Collider2D collision)
         {
+            if (dead)
+            {
+                return;
+            }
             SoundManager.Instance.PlayBoatCrash();
             dead = true;
             ui.gameObject.SetActive(false);
