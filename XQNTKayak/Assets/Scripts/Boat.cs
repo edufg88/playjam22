@@ -11,6 +11,7 @@ namespace KayakGame
         [SerializeField] private SpriteRenderer wrongDirSpriteRenderer;
         [SerializeField] private Animator rightPaddleAnimator;
         [SerializeField] private Animator leftPaddleAnimator;
+        [SerializeField] private GameObject playerRendererParent;
         [SerializeField] private ParticleSystem trailParticles;
         [SerializeField] private ParticleSystem destructionParticles;
         [SerializeField] private ParticleSystem coinCollectParticlesPrefab;
@@ -249,6 +250,7 @@ namespace KayakGame
             dead = true;
             ui.gameObject.SetActive(false);
             spriteRenderer.enabled = false;
+            playerRendererParent.SetActive(false);
             leftPaddleAnimator.enabled = false;
             rightPaddleAnimator.enabled = false;
             var leftPaddleRB = leftPaddleAnimator.GetComponent<Rigidbody2D>();
