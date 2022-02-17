@@ -212,6 +212,15 @@ namespace KayakGame
 
             return closestPoint;
         }
+
+        public Vector3 GetRiverDirectionOnPoint (Vector3 point)
+        {
+            var firstPoint = pathCreator.path.GetClosestPointOnPath(point);
+            firstPoint.z = 0;
+            var nextPoint = pathCreator.path.GetClosestPointOnPath(point + Vector3.up);
+            nextPoint.z = 0;
+            return nextPoint - firstPoint;
+        }
     }
 
 }
