@@ -8,20 +8,19 @@ namespace KayakGame
 {
     public class RiverCreator : MonoBehaviour
     {
-        [SerializeField] private float width = 4f;
-        [SerializeField] private float lenght = 20f;
-        [SerializeField] private Vector2 distanceYBetweenWaypoints = new Vector2(3, 6);
-        [SerializeField] private float maxDistanceToOrigin = 5f;
-        [SerializeField] private Camera mainCamera;
+        [SerializeField] private float width = 6f;
+        [SerializeField] private float lenght = 200f;
+        [SerializeField] private Vector2 distanceYBetweenWaypoints = new Vector2(8, 14);
+        [SerializeField] private float maxDistanceToOriginX = 5f;
         [SerializeField] private float originY;
-        [SerializeField]private float flowSpeed = 2;
-
+        [SerializeField] private float flowSpeed = 2;
         [SerializeField] EdgeCollider2D edgeCollider2DLeft;
         [SerializeField] EdgeCollider2D edgeCollider2DRight;
 
-        private PathCreator pathCreator;
+        public float Width { get { return width; } }
 
-        private LinkedList<Vector3> waypoints;
+        private Camera mainCamera;
+        private PathCreator pathCreator;
 
         private Vector2[] riverLeftEdges;
         private Vector2[] riverRightEdges;
@@ -33,18 +32,22 @@ namespace KayakGame
         private float currentLenght;
         private float textureOffset;
 
+        private void Awake()
+        {
+            Initialize();
+        }
 
         private void Start()
         {
-            Initialize();
-            CreateRiver();
+            CreatePath();
+            UpdateRiver();
         }
 
         private void Update()
         {
             UpdateOrigin();
-            GeneratePath();
-            GenerateRiver();
+            UpdatePath();
+            UpdateRiver();
         }
 
         private void Initialize ()
@@ -59,9 +62,16 @@ namespace KayakGame
             }
         }
 
-        private void CreateRiver()
+        private void CreatePath()
         {
-            waypoints = new LinkedList<Vector3>();
+
+            var startPosition = new Vector3(0, originY - (lenght * 0.5f), 0);
+            pathCreator.bezierPath = new BezierPath(new List<Vector3>() { startPosition, Vector3.zero}, false, PathSpace.xy);
+
+            while (currentLenght < lenght)
+            {
+                AddWaypoint();
+            }
         }
 
         private void UpdateOrigin()
@@ -69,22 +79,15 @@ namespace KayakGame
             originY = mainCamera.transform.position.y;
         }
 
-        private void GeneratePath()
+        private void UpdatePath()
         {
             bool update = false;
 
-            if (waypoints.Count == 0) 
-            {
-                update = true;
-            } 
-            else if (waypoints.Count > 0)
-            {
-                var firstPositionY = waypoints.First.Value.y;
-                var topBorder = originY + (lenght * 0.5f);
-                var requiredLenght = topBorder - firstPositionY;
+            var headPositionY = pathCreator.bezierPath.GetPoint(pathCreator.bezierPath.NumPoints - 1).y;
+            var topBorder = originY + (lenght * 0.5f);
+            var requiredLenght = topBorder - headPositionY;
 
-                update = requiredLenght > 0;
-            }
+            update = requiredLenght > 0;
 
             if (update)
             {
@@ -99,9 +102,9 @@ namespace KayakGame
             }
         }
 
-        private void GenerateRiver ()
+        private void UpdateRiver ()
         {
-            if (waypoints.Count < 2)
+            if (pathCreator.bezierPath.NumAnchorPoints < 2)
                 return;
 
             var riverAspecrRatio = lenght / width;
@@ -109,11 +112,10 @@ namespace KayakGame
             // Mesh renderer
             Material riverMaterial = meshRenderer.sharedMaterials[0];
             riverMaterial.mainTextureScale = new Vector3(1, lenght / width);
-            var offset = Mathf.Repeat(Time.time * flowSpeed, 1);
+            var offset = Mathf.Repeat(Time.time * -flowSpeed, 1);
             riverMaterial.mainTextureOffset = new Vector2(0, offset);
 
             // Mesh
-            pathCreator.bezierPath = new BezierPath(waypoints, false, PathSpace.xy);
             var vertexPath = pathCreator.path;
 
             Vector3[] verts = new Vector3[vertexPath.NumPoints * 2];
@@ -185,31 +187,30 @@ namespace KayakGame
 
         private void AddWaypoint ()
         {
-            float firstPositionY;
-
-            if (waypoints.Count == 0)
-            {
-                firstPositionY = originY - (lenght * 0.5f);
-            }
-            else
-            {
-                firstPositionY = waypoints.First.Value.y;
-            }
+            float firstPositionY = pathCreator.bezierPath.GetPoint(pathCreator.bezierPath.NumPoints - 1).y;
 
             var shift = Random.Range(distanceYBetweenWaypoints.x, distanceYBetweenWaypoints.y);
             var positionY = firstPositionY + shift;
-            var positionX = Random.Range(-maxDistanceToOrigin, maxDistanceToOrigin);
+            var positionX = Random.Range(-maxDistanceToOriginX, maxDistanceToOriginX);
 
-            waypoints.AddFirst(new Vector3(positionX, positionY, 0));
+            pathCreator.bezierPath.AddSegmentToEnd(new Vector3(positionX, positionY, 0));
             currentLenght += shift;
         }
 
         private void RemoveWaypoint ()
         {
-            var lastWaypoint = waypoints.Last;
-            waypoints.RemoveLast();
-            var shift = waypoints.Last.Value.y - lastWaypoint.Value.y;
+            var lastWaypoint = pathCreator.bezierPath.GetPoint(0);
+            pathCreator.bezierPath.DeleteSegment(0);
+            var shift = pathCreator.bezierPath.GetPoint(0).y - lastWaypoint.y;
             currentLenght -= shift;
+        }
+
+        public Vector3 GetClosestPointOnRiver (Vector3 point)
+        {
+            var closestPoint = pathCreator.path.GetClosestPointOnPath(point);
+            closestPoint.z = 0;
+
+            return closestPoint;
         }
     }
 

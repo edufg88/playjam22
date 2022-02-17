@@ -27,6 +27,7 @@ namespace KayakGame
         [SerializeField] private Color turboTrailColor;
         [SerializeField] private UnityEvent onCollisionWithObstacle;
         [SerializeField] private UnityEvent onCollisionWithCoin;
+        [SerializeField] private RiverCreator riverCreator;
 
         private float currentSpeed;
         private float leftPaddleStartTime = float.MinValue;
@@ -59,6 +60,11 @@ namespace KayakGame
             trailInitialColor = trailParticles.main.startColor.color;
         }
 
+        private void Start()
+        {
+            TeleportToStartPosition();
+        }
+
         private void Update()
         {
             if (dead)
@@ -68,6 +74,11 @@ namespace KayakGame
             UpdateTurbo();
             CheckYDirection();
             transform.position += currentSpeed * Time.deltaTime * new Vector3(direction.x, direction.y);
+        }
+
+        private void TeleportToStartPosition ()
+        {
+            transform.position = riverCreator.GetClosestPointOnRiver(transform.position);
         }
 
         private void CheckYDirection()
