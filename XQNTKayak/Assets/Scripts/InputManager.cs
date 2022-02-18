@@ -40,6 +40,10 @@ namespace KayakGame
             {
                 onRestart?.Invoke();
             }
+            if (Input.GetKeyUp(KeyCode.Escape))
+            {
+                Application.Quit();
+            }
         }
     }
 }
