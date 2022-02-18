@@ -4,3 +4,7 @@ XQNTKayak/UserSettings/
 XQNTKayak/.vs/
 XQNTKayak/Logs/
 XQNTKayak/obj/
+XQNTKayak/Assembly-CSharp.csproj
+XQNTKayak/PathCreator.csproj
+XQNTKayak/Assembly-CSharp-Editor.csproj
+XQNTKayak/PathCreatorEditor.csproj

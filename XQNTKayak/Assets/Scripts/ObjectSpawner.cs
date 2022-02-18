@@ -15,10 +15,13 @@ namespace KayakGame
         [SerializeField] private RiverCreator riverCreator;
         [SerializeField] private Camera camera;
         [SerializeField] private Vector2 spawnInterval = new Vector2(1, 4);
+        [SerializeField] private Vector2 decoInterval = new Vector2(1, 3);
 
         private List<GameObject> objectQueue = new List<GameObject>();
         private float spawnAcc = 0f;
+        private float decoAcc = 0f;
         private float nextSpawnIn = 0f;
+        private float nextDecoIn = 0f;
 
         private void Awake()
         {
@@ -40,12 +43,18 @@ namespace KayakGame
         private void Update()
         {
             spawnAcc += Time.deltaTime;
+            decoAcc += Time.deltaTime;
             if (spawnAcc > nextSpawnIn)
             {
                 SpawnLoop();
-                DecorationLoop();
                 spawnAcc = 0f;
                 nextSpawnIn = Random.Range(spawnInterval.x, spawnInterval.y);
+            }
+            if (decoAcc > nextDecoIn)
+            {
+                DecorationLoop();
+                decoAcc = 0f;
+                nextDecoIn = Random.Range(decoInterval.x, decoInterval.y);
             }
             CleanQueue();
 
@@ -63,7 +72,7 @@ namespace KayakGame
             var closestPosition = riverCreator.GetClosestPointOnRiver(spawnPosition);
             var riverDirectionInPosition = riverCreator.GetRiverDirectionOnPoint(closestPosition);
             var rotatedDirection = Quaternion.Euler(0f, 0f, Mathf.Sign(Random.Range(-1f, 1f)) * 90f) * riverDirectionInPosition;
-            var spawnRadius = riverCreator.Width * Random.Range(1.5f, 4.5f);
+            var spawnRadius = riverCreator.Width * Random.Range(1.5f, 4f);
             closestPosition += rotatedDirection * spawnRadius;
             var instance = Instantiate(decorationPrefabs[Random.Range(0, decorationPrefabs.Length)], closestPosition, Quaternion.identity);
             instance.transform.localScale = Vector3.one * Random.Range(0.75f, 1.25f);
@@ -135,7 +144,7 @@ namespace KayakGame
         private void CleanQueue()
         {
             var count = objectQueue.Count;
-            for (var i = 0; i < count - 10; ++i)
+            for (var i = 0; i < count - 15; ++i)
             {
                 Destroy(objectQueue[i]);
                 objectQueue.RemoveAt(i);

@@ -50,7 +50,7 @@ namespace KayakGame
         private Vector2 forwardVector
         {
             get => transform.up;
-            set => StartCoroutine(LerpForward(value, 1f));
+            set => transform.up = value;
         }
 
         private void Awake()
@@ -99,29 +99,29 @@ namespace KayakGame
         {
             dead = true;
             wrongDirSpriteRenderer.gameObject.SetActive(true);
-            yield return LerpDirectionCoroutine(Vector2.up, 3f);
+            yield return LerpDirectionCoroutine(Quaternion.identity, 3f);
             angularSpeed = 0f;
             wrongDirSpriteRenderer.gameObject.SetActive(false);
             dead = false;
         }
 
-        private IEnumerator LerpForward(Vector2 target, float duration)
+        private IEnumerator LerpForward(Quaternion targetRotation, float duration)
         {
-            var dir = forwardVector;
+            var rotation = Quaternion.FromToRotation(Vector3.up, forwardVector);
             for (var t = 0f; t < 1f; t += Time.fixedDeltaTime / duration)
             {
-                transform.up = Vector2.Lerp(dir, target, t);
+                forwardVector = Quaternion.Slerp(rotation, targetRotation, t) * Vector3.up;
                 yield return new WaitForEndOfFrame();
             }
         }
 
-        private IEnumerator LerpDirectionCoroutine(Vector2 target, float duration)
+        private IEnumerator LerpDirectionCoroutine(Quaternion targetRotation, float duration)
         {
-            var dir = direction;
-            forwardVector = target;
+            var rotation = Quaternion.FromToRotation(Vector3.up, direction);
+            StartCoroutine(LerpForward(targetRotation, 1f));
             for (var t = 0f; t < 1f; t += Time.fixedDeltaTime / duration)
             {
-                direction = Vector2.Lerp(dir, target, t);
+                direction = Quaternion.Lerp(rotation, targetRotation, t) * Vector3.up;
                 yield return new WaitForEndOfFrame();
             }
         }
@@ -129,8 +129,17 @@ namespace KayakGame
         private void AddAngularSpeed(float value)
         {
             angularSpeed += value;
+            if (angularSpeed > 360f)
+            {
+                angularSpeed -= 360f;
+            }
+            if (angularSpeed < -360f)
+            {
+                angularSpeed += 360f;
+            }
             var target = Quaternion.Euler(0f, 0f, angularSpeed) * Vector2.up;
-            StartCoroutine(LerpDirectionCoroutine(target, 3f));
+            Debug.LogWarningFormat("AngSpeed: {0} - target angle up: {1}", angularSpeed, Vector3.Angle(Vector3.up, target));
+            StartCoroutine(LerpDirectionCoroutine(Quaternion.Euler(0f, 0f, angularSpeed), 2f));
         }
 
         private void UpdateTurbo()

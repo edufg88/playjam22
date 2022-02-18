@@ -19,7 +19,6 @@ namespace KayakGame
             }
             transform.position += transform.rotation * Vector3.left * Mathf.Sign(transform.localScale.x) * speed * Time.deltaTime;
         }
-
     }
 }
 

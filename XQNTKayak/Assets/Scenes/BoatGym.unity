@@ -1971,12 +1971,20 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 909225441, guid: d13c24d89778a704da407cf355f3b3c0, type: 3}
       propertyPath: m_Enabled
-      value: 1
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5761862339392645242, guid: d13c24d89778a704da407cf355f3b3c0, type: 3}
+      propertyPath: speed
+      value: 7.5
       objectReference: {fileID: 0}
     - target: {fileID: 5761862339392645242, guid: d13c24d89778a704da407cf355f3b3c0, type: 3}
       propertyPath: riverCreator
       value: 
       objectReference: {fileID: 176288642}
+    - target: {fileID: 5761862339392645242, guid: d13c24d89778a704da407cf355f3b3c0, type: 3}
+      propertyPath: angularSpeedOnPaddle
+      value: 10
+      objectReference: {fileID: 0}
     - target: {fileID: 5761862339392645242, guid: d13c24d89778a704da407cf355f3b3c0, type: 3}
       propertyPath: onCollisionWithCoin.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
@@ -2116,8 +2124,12 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 176288642}
     - target: {fileID: 6762797764157490957, guid: 0b1ac73af7d13f04b8552ec7ede5fee8, type: 3}
+      propertyPath: decoInterval.y
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6762797764157490957, guid: 0b1ac73af7d13f04b8552ec7ede5fee8, type: 3}
       propertyPath: decorationPrefabs.Array.size
-      value: 4
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 6762797764157490957, guid: 0b1ac73af7d13f04b8552ec7ede5fee8, type: 3}
       propertyPath: decorationPrefabs.Array.data[0]
@@ -2134,7 +2146,15 @@ PrefabInstance:
     - target: {fileID: 6762797764157490957, guid: 0b1ac73af7d13f04b8552ec7ede5fee8, type: 3}
       propertyPath: decorationPrefabs.Array.data[3]
       value: 
-      objectReference: {fileID: 2047695722713198257, guid: cddc8c76c218d6e449afaf956c49b9a0, type: 3}
+      objectReference: {fileID: 3874900331502091008, guid: 962453dbe1fa6294988a5c0b2c16f735, type: 3}
+    - target: {fileID: 6762797764157490957, guid: 0b1ac73af7d13f04b8552ec7ede5fee8, type: 3}
+      propertyPath: decorationPrefabs.Array.data[4]
+      value: 
+      objectReference: {fileID: 4161480600096355291, guid: 166c801625e61d444bcc6432eb919d09, type: 3}
+    - target: {fileID: 6762797764157490957, guid: 0b1ac73af7d13f04b8552ec7ede5fee8, type: 3}
+      propertyPath: decorationPrefabs.Array.data[5]
+      value: 
+      objectReference: {fileID: 4161480600096355291, guid: 166c801625e61d444bcc6432eb919d09, type: 3}
     - target: {fileID: 8720213590233781698, guid: 0b1ac73af7d13f04b8552ec7ede5fee8, type: 3}
       propertyPath: m_RootOrder
       value: 9
