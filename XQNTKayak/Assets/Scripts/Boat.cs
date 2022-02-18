@@ -138,7 +138,6 @@ namespace KayakGame
                 angularSpeed += 360f;
             }
             var target = Quaternion.Euler(0f, 0f, angularSpeed) * Vector2.up;
-            Debug.LogWarningFormat("AngSpeed: {0} - target angle up: {1}", angularSpeed, Vector3.Angle(Vector3.up, target));
             StartCoroutine(LerpDirectionCoroutine(Quaternion.Euler(0f, 0f, angularSpeed), 2f));
         }
 
