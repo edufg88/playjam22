@@ -8,7 +8,9 @@ namespace KayakGame
     {
         [SerializeField] private AudioSource musicSource;
         [SerializeField] private AudioSource sfxSource;
+        [SerializeField] private AudioSource riverSource;
         [SerializeField] private AudioClip music;
+        [SerializeField] private AudioClip river;
         [SerializeField] private AudioClip boatBoost;
         [SerializeField] private AudioClip boatCrash;
         [SerializeField] private AudioClip boatRow;
@@ -26,6 +28,8 @@ namespace KayakGame
         {
             musicSource.clip = music;
             musicSource.Play();
+            riverSource.clip = river;
+            riverSource.Play();
         }
 
         public void PlayBoatBoost()

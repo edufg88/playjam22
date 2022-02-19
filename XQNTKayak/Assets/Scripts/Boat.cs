@@ -21,6 +21,7 @@ namespace KayakGame
         [SerializeField] private float turboSpeed;
         [SerializeField] private float angularSpeedOnPaddle;
         [SerializeField] private float timeToTurbo;
+        [SerializeField] private float minTimeToTurbo;
         [SerializeField] private float turboDuration;
         [SerializeField] private float turboCooldownDuration;
         [SerializeField] private float timeToReposition;
@@ -28,6 +29,9 @@ namespace KayakGame
         [SerializeField] private UnityEvent onCollisionWithObstacle;
         [SerializeField] private UnityEvent onCollisionWithCoin;
         [SerializeField] private RiverCreator riverCreator;
+
+        public delegate void DistanceAlongRiverTraveledDelegate(float distance);
+        public DistanceAlongRiverTraveledDelegate DistanceAlongRiverTraveledEvent;
 
         private float currentSpeed;
         private float leftPaddleStartTime = float.MinValue;
@@ -43,6 +47,7 @@ namespace KayakGame
         private float[] paddleTorqueValues = { -500f, -400f, -300f, 300f, 400f, 500f };
         private float[] paddleForceValues = { -400f, -300f, -200, 200, 300f, 400f };
         private bool dead = false;
+        private float distanceTraveled = 0;
 
         private float GetRandomPaddleTorque() => paddleTorqueValues[Random.Range(0, paddleTorqueValues.Length)];
         private float GetRandomPaddleForce() => paddleForceValues[Random.Range(0, paddleForceValues.Length)];
@@ -73,12 +78,21 @@ namespace KayakGame
             }
             UpdateTurbo();
             CheckYDirection();
-            transform.position += currentSpeed * Time.deltaTime * new Vector3(direction.x, direction.y);
+            UpdateMovement();
         }
 
         private void TeleportToStartPosition ()
         {
             transform.position = riverCreator.GetClosestPointOnRiver(transform.position);
+        }
+
+        private void UpdateMovement()
+        {
+            var previousPathPosition = riverCreator.GetClosestPointOnRiver(transform.position);
+            transform.position += currentSpeed * Time.deltaTime * new Vector3(direction.x, direction.y);
+            var currentPathPosition = riverCreator.GetClosestPointOnRiver(transform.position);
+            var distanceTraveled = Vector3.Distance(currentPathPosition, previousPathPosition);
+            DistanceAlongRiverTraveledEvent?.Invoke(distanceTraveled);
         }
 
         private void CheckYDirection()
@@ -151,7 +165,7 @@ namespace KayakGame
             else if (Mathf.Abs(leftPaddleStartTime - rightPaddleStartTime) < 0.1f)
             {
                 turboProgressAcc += Time.deltaTime;
-                ui.UpdateTurboProgress(turboProgressAcc / timeToTurbo);
+                ui.UpdateTurboProgress(turboProgressAcc / timeToTurbo, 1);
             }
         }
 
@@ -161,12 +175,13 @@ namespace KayakGame
             {
                 return;
             }
-            if (turboProgressAcc >= timeToTurbo)
+            if (turboProgressAcc >= minTimeToTurbo)
             {
                 if (turboCoroutine == null)
                 {
-                    currentSpeed = turboSpeed;
-                    turboCoroutine = StartCoroutine(StopTurboAndCooldownCoroutine());
+                    var turboPower = Mathf.Clamp(turboProgressAcc / timeToTurbo, 0, 1);
+                    currentSpeed = Mathf.Lerp(speed, turboSpeed, turboPower);
+                    turboCoroutine = StartCoroutine(StopTurboAndCooldownCoroutine(turboPower));
                 }
             }
             else if (turboProgressAcc > 0f)
@@ -175,11 +190,13 @@ namespace KayakGame
             }
         }
 
-        private IEnumerator StopTurboAndCooldownCoroutine()
+        private IEnumerator StopTurboAndCooldownCoroutine(float turboPower)
         {
             var psMain = trailParticles.main;
             psMain.startColor = turboTrailColor;
-            yield return new WaitForSeconds(turboDuration);
+            leftPaddleStartTime = float.MinValue;
+            rightPaddleStartTime = float.MaxValue;
+            yield return new WaitForSeconds(turboDuration * turboPower);
             CancelTurbo(true);
             psMain.startColor = trailInitialColor;
             cooldown = true;

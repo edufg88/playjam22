@@ -26,15 +26,15 @@ namespace KayakGame
             turboBarGroup.alpha = show ? 1f : 0f;
         }
 
-        public void UpdateTurboProgress(float progress)
+        public void UpdateTurboProgress(float progress, float maxProgress)
         {
             if (!isTurboBarVisible)
             {
                 ShowProgress(true);
             }            
-            if (progress >= 1f)
+            if (progress >= maxProgress)
             {
-                progress = 1f;
+                progress = maxProgress;
                 turboBarProgress.color = progressCompleteColor;
             }
             turboBarProgress.fillAmount = progress;

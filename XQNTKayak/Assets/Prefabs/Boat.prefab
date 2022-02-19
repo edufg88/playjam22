@@ -10580,6 +10580,7 @@ MonoBehaviour:
   turboSpeed: 17.5
   angularSpeedOnPaddle: 10
   timeToTurbo: 1.5
+  minTimeToTurbo: 0.2
   turboDuration: 5
   turboCooldownDuration: 5
   timeToReposition: 3
@@ -10614,6 +10615,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+  riverCreator: {fileID: 0}
 --- !u!50 &909225442
 Rigidbody2D:
   serializedVersion: 4

@@ -47,5 +47,13 @@ MonoBehaviour:
   coinPrefab: {fileID: 1978227838406640031, guid: 52fb653a3d1bb1e478ec19afec33bf92, type: 3}
   woodlogPrefab: {fileID: 4208342299811566036, guid: 91f4dc57a32be1d4fa27143c27b33f6f, type: 3}
   crocodilePrefab: {fileID: 3937568520705467893, guid: 8fee0fc0641a48c4c8065843eaa5ecfa, type: 3}
+  decorationPrefabs:
+  - {fileID: 1026598224586444097, guid: ece81c2f39d692e4fb56459ad6704f4c, type: 3}
+  - {fileID: 7074890710452703679, guid: 86270323d32775944a256f677a872fd2, type: 3}
+  - {fileID: 1286483426924570412, guid: e3090f382b96b6c4892eff26d1b18fd7, type: 3}
+  - {fileID: 3874900331502091008, guid: 962453dbe1fa6294988a5c0b2c16f735, type: 3}
+  - {fileID: 4161480600096355291, guid: 166c801625e61d444bcc6432eb919d09, type: 3}
   riverCreator: {fileID: 0}
   camera: {fileID: 0}
+  spawnInterval: {x: 1, y: 4}
+  decoInterval: {x: 1, y: 2}

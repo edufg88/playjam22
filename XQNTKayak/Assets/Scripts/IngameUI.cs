@@ -16,7 +16,7 @@ namespace KayakGame
         {
             var timespan = TimeSpan.FromSeconds(time);
             timeLabel.text = timespan.ToString(@"hh\:mm\:ss\:fff");
-            distanceLabel.text = distance.ToString();
+            distanceLabel.text = distance.ToString("0.##");
             coinsLabel.text = coins.ToString();
             scoreLabel.text = score.ToString();
         }

@@ -107,7 +107,7 @@ MonoBehaviour:
   distanceYBetweenWaypoints: {x: 40, y: 120}
   maxDistanceToOriginX: 40
   originY: 0
-  flowSpeed: 0.5
+  flowSpeed: 0.75
   edgeCollider2DLeft: {fileID: 7777200876969070343}
   edgeCollider2DRight: {fileID: 7777200879040006480}
 --- !u!114 &7777200877951712438
@@ -142,7 +142,7 @@ MonoBehaviour:
       - 0
       globalNormalsAngle: 0
       flipNormals: 0
-    vertexPathUpToDate: 1
+    vertexPathUpToDate: 0
     vertexPathMaxAngleError: 0.3
     vertexPathMinVertexSpacing: 0.01
     showTransformTool: 1

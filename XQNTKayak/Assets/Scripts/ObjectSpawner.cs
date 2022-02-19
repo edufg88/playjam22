@@ -111,7 +111,8 @@ namespace KayakGame
         {
             var closestPosition = GetNextSpawnPositionInRiver();
             var randomRotation = Quaternion.Euler(0, 0, Random.Range(0.0f, 360.0f));
-            objectQueue.Add(Instantiate(spawnedObject, closestPosition, randomRotation));
+            var instance = Instantiate(spawnedObject, closestPosition, randomRotation);
+            objectQueue.Add(instance);
         }
 
         public void SpawnCoin()
